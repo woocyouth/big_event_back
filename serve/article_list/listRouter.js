@@ -7,12 +7,14 @@ const dayjs = require("dayjs");
 // 调用应用中间件
 router.use(express.urlencoded());
 
+let imgSrc = null;
 let storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'uploads')
     },
     filename: function (req, file, cb) {
-        cb(null, file.originalname + new Date().getTime());
+        imgSrc = file.fieldname + '-' + Date.now()
+        cb(null, imgSrc);
     }
 })
 
@@ -205,9 +207,8 @@ router.post("/updateArt", upload.single('cover_img'), (req, res) => {
     if (content) alsArr.push(`content="${content}"`);
     if (state) alsArr.push(`state="${state}"`);
 
-    let imgSrc = "";
     if (file) {
-        imgSrc = "http://127.0.0.1:3000/" + file.path.replace(/\\/g, "/");
+        imgSrc = "http://127.0.0.1:3000/uploads/" + imgSrc;
         // console.log(imgSrc);
         alsArr.push(`cover_img="${imgSrc}"`);
     }
@@ -248,7 +249,8 @@ router.post("/updateArt", upload.single('cover_img'), (req, res) => {
             if (result.affectedRows > 0) {
                 res.status(200).json({
                     code: 200,
-                    msg: "更新文章内容成功"
+                    msg: "更新文章内容成功",
+                    cover_img: imgSrc
                 });
             } else {
                 res.status(201).json({
@@ -264,7 +266,7 @@ router.post("/updateArt", upload.single('cover_img'), (req, res) => {
 
 })
 
-// 更新文章
+// 发布文章
 router.post("/add", upload.single('cover_img'), (req, res) => {
     let {
         title,

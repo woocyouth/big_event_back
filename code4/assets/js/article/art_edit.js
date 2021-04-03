@@ -22,10 +22,17 @@ $(window).on("load", function () {
                 form.val("letterForm", res.data[0]);
                 // console.log(res.data[0]);
 
-                tinyMCE.activeEditor.setContent(res.data[0].content);
+                // 解决tinyMCE富文本域重载的问题
+                let tinyMCETime = setTimeout(() => {
+                    tinyMCE.activeEditor.setContent(res.data[0].content);
+                    clearTimeout(tinyMCETime)
+                }, 500);
 
+                // console.log(res.data);
+                // 解决对应文章封面显示的问题
                 if (res.data[0].cover_img) {
-                    let imgURL = baseURL + res.data[0].cover_img
+                    let imgURL = res.data[0].cover_img;
+
                     $image
                         .cropper('destroy') // 销毁旧的裁剪区域
                         .attr('src', imgURL) // 重新设置图片路径
